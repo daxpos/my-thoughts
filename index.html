@@ -1,120 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Thoughts</title>
+    <meta charset="UTF-8">
+    <title>My Daily Thoughts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #f7f8fc;
+            --text: #111;
+            --card: #ffffff;
+            --sub: #555;
+            --accent: #4f6ef7;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            padding: 20px;
-            max-width: 700px;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
             margin: auto;
+            padding: 60px 30px;
         }
 
         h1 {
-            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            margin-bottom: 10px;
         }
 
-        textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
+        .subtitle {
+            color: var(--sub);
+            margin-bottom: 50px;
         }
 
         .post {
-            background: white;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 5px;
+            background: var(--card);
+            padding: 30px;
+            margin-top: 30px;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+        }
+
+        .post h2 {
+            margin-top: 0;
+            font-family: 'Playfair Display', serif;
         }
 
         .date {
-            font-size: 12px;
-            color: gray;
+            font-size: 13px;
+            color: var(--sub);
+            margin-bottom: 16px;
+        }
+
+        .post p {
+            line-height: 1.7;
+            font-size: 17px;
         }
     </style>
 </head>
 <body>
 
-    <h1>My Thoughts</h1>
-
-    <textarea id="postInput" placeholder="Write your thoughts here..."></textarea>
-    <br>
-    <button onclick="addPost()">Post</button>
-
+<div class="container">
+    <h1>My Daily Thoughts</h1>
+    <div class="subtitle">A public space for reflection.</div>
     <div id="posts"></div>
+</div>
 
-    <script>
-        let posts = JSON.parse(localStorage.getItem("posts")) || [];
-
-        function savePosts() {
-            localStorage.setItem("posts", JSON.stringify(posts));
-        }
-
-        function formatDate(date) {
-            return date.toLocaleString();
-        }
-
-        function addPost() {
-            const text = document.getElementById("postInput").value.trim();
-            if (text === "") return;
-
-            posts.unshift({
-                content: text,
-                date: formatDate(new Date())
-            });
-
-            document.getElementById("postInput").value = "";
-            savePosts();
-            renderPosts();
-        }
-
-        function editPost(index) {
-            const newText = prompt("Edit your post:", posts[index].content);
-            if (newText !== null) {
-                posts[index].content = newText;
-                savePosts();
-                renderPosts();
-            }
-        }
-
-        function deletePost(index) {
-            if (confirm("Delete this post?")) {
-                posts.splice(index, 1);
-                savePosts();
-                renderPosts();
-            }
-        }
-
-        function renderPosts() {
-            const container = document.getElementById("posts");
-            container.innerHTML = "";
-
-            posts.forEach((post, index) => {
-                const div = document.createElement("div");
-                div.className = "post";
-
+<script>
+    fetch('posts.json')
+        .then(response => response.json())
+        .then(posts => {
+            const container = document.getElementById('posts');
+            // Display newest first
+            posts.reverse().forEach(post => {
+                const div = document.createElement('div');
+                div.className = 'post';
                 div.innerHTML = `
+                    <h2>${post.title}</h2>
                     <div class="date">${post.date}</div>
                     <p>${post.content}</p>
-                    <button onclick="editPost(${index})">Edit</button>
-                    <button onclick="deletePost(${index})">Delete</button>
                 `;
-
                 container.appendChild(div);
             });
-        }
-
-        renderPosts();
-    </script>
+        })
+        .catch(err => console.error('Error loading posts:', err));
+</script>
 
 </body>
 </html>
